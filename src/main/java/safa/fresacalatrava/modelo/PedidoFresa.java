@@ -37,11 +37,11 @@ public class PedidoFresa
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_pedido", nullable = false)
     private Pedido pedido;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_fresa", nullable = false)
     private Fresa fresa;
 

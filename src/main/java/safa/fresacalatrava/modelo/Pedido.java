@@ -47,7 +47,7 @@ public class Pedido
     @Column(name = "importe_total")
     private float importeTotal;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 }

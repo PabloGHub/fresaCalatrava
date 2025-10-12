@@ -42,7 +42,7 @@ public class Invernadero
     @Column(name = "tipo", length = 2)
     private int tipo;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_finca", nullable = false)
     private Finca finca;
 }

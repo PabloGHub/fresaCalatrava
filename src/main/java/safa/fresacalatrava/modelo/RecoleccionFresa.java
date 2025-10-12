@@ -41,7 +41,7 @@ public class RecoleccionFresa
     @JoinColumn(name = "id_recoleccion", nullable = false)
     private Recoleccion recoleccion;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_fresa", nullable = false)
     private Fresa fresa;
 }

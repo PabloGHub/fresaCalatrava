@@ -43,7 +43,7 @@ public class Valoracion
     @Column(name = "comentario", length = 500)
     private String comentario;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_pedido", nullable = false)
     private Pedido pedido;
 }

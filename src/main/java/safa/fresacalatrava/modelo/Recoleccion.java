@@ -36,7 +36,7 @@ public class Recoleccion
     @Column(name = "fecha")
     private java.sql.Date fecha;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_invernadero", nullable = false)
     private Invernadero invernadero;
 }
