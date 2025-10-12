@@ -23,7 +23,7 @@ create or replace table invernadero(
 @Entity
 @Table
 (
-    name = "invernadero", schema = "fresa_calatrava", catalog = "fresa_calatrava",
+    name = "invernadero", catalog = "fresa_calatrava",
     uniqueConstraints = { @UniqueConstraint(columnNames = {"id"}) }
 )
 public class Invernadero

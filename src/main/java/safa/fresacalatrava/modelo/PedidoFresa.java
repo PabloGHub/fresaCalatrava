@@ -27,7 +27,7 @@ import lombok.*;
 @Entity
 @Table
 (
-        name = "pedido_fresa", schema = "fresa_calatrava", catalog = "fresa_calatrava",
+        name = "pedido_fresa", catalog = "fresa_calatrava",
         uniqueConstraints = { @UniqueConstraint(columnNames = {"id"}) }
 )
 public class PedidoFresa

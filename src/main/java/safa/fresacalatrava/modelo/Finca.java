@@ -22,7 +22,7 @@ create or replace table finca (
 @Entity
 @Table
 (
-    name = "finca", schema = "fresa_calatrava", catalog = "fresa_calatrava",
+    name = "finca", catalog = "fresa_calatrava",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"id"})}
 )
 public class Finca
