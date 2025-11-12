@@ -35,10 +35,10 @@ public class Valoracion
     private Integer id;
 
     @Column(name = "fecha")
-    private java.sql.Date fecha;
+    private java.sql.Date fecha; // TODO: cambiar
 
     @Column(name = "puntuacion")
-    private int puntuacion;
+    private Integer puntuacion;
 
     @Column(name = "comentario", length = 500)
     private String comentario;

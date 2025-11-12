@@ -46,5 +46,5 @@ public class PedidoFresa
     private Fresa fresa;
 
     @Column(name = "cantidad")
-    private int cantidad;
+    private Integer cantidad;
 }

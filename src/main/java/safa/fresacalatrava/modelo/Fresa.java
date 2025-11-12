@@ -40,11 +40,11 @@ public class Fresa
     private String nombre;
 
     @Column(name = "tipo", length = 2)
-    private int tipo;
+    private Integer tipo;
 
     @Column(name = "temporada", length = 2)
-    private int temporada;
+    private Integer temporada;
 
     @Column(name = "rendimiento")
-    private float rendimiento;
+    private Float rendimiento;
 }

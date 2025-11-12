@@ -37,10 +37,10 @@ public class Invernadero
     private String codigo;
 
     @Column(name = "capacidad")
-    private int capacidad;
+    private Integer capacidad;
 
     @Column(name = "tipo", length = 2)
-    private int tipo;
+    private Integer tipo;
 
     @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_finca", nullable = false)

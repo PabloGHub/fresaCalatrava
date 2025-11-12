@@ -39,13 +39,13 @@ public class Pedido
     private String codigo;
 
     @Column(name = "fecha")
-    private java.sql.Date fecha;
+    private java.sql.Date fecha; // TODO: Cambiar
 
     @Column(name = "estado", length = 2)
-    private int estado;
+    private Integer estado;
 
     @Column(name = "importe_total")
-    private float importeTotal;
+    private Float importeTotal;
 
     @ManyToOne(fetch =  FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_cliente", nullable = false)

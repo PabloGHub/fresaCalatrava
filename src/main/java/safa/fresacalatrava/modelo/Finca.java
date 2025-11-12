@@ -36,11 +36,11 @@ public class Finca
     private String nombre;
 
     @Column(name = "latitud")
-    private float latitud;
+    private Float latitud;
 
     @Column(name = "longitud")
-    private float longitud;
+    private Float longitud;
 
     @Column(name = "supercie", nullable = false)
-    private int supercie;
+    private Integer supercie;
 }

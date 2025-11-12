@@ -1,0 +1,10 @@
+Gestor ->
+- fincas: CRUD
+- invernadero: CRUD
+- fresa: CRUD
+- recoleccion: crear, consultar
+
+Usuario ->
+- cliente: CRUD
+- pedido: crear, consultar
+- valoracion, crear, consultar
