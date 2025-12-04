@@ -1,23 +1,20 @@
 package safa.fresacalatrava.servicio;
 
 import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.InitializingBean;
 import safa.fresacalatrava.dto.DtoFallo;
 import safa.fresacalatrava.modelo.*;
 import safa.fresacalatrava.repositorio.*;
 
-import java.util.HashMap;
+import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.function.Function;
 
 @Service
 // @AllArgsConstructor
 @RequiredArgsConstructor
-public class ServiGeneral implements InitializingBean
+public class ServiGeneral
 {
     private final RepCliente repCliente;
     private final RepFinca repFinca;
@@ -30,22 +27,6 @@ public class ServiGeneral implements InitializingBean
     private final RepValoracion repValoracion;
 
     private Map<Class<?>, JpaRepository<?, Integer>> repos;
-
-    private final Map<Class<?>, Function<Integer, ?>> finders = new HashMap<>();
-
-    @Override
-    public void afterPropertiesSet()
-    {
-        finders.put(Finca.class, id -> repFinca.findById(id).orElse(null));
-        finders.put(Fresa.class, id -> repFresa.findById(id).orElse(null));
-        finders.put(Cliente.class, id -> repCliente.findById(id).orElse(null));
-        finders.put(Invernadero.class, id -> repInvernadero.findById(id).orElse(null));
-        finders.put(Pedido.class, id -> repPedido.findById(id).orElse(null));
-        finders.put(PedidoFresa.class, id -> repPedidoFresa.findById(id).orElse(null));
-        finders.put(Recoleccion.class, id -> repRecoleccion.findById(id).orElse(null));
-        finders.put(RecoleccionFresa.class, id -> repRecoleccionFresa.findById(id).orElse(null));
-        finders.put(Valoracion.class, id -> repValoracion.findById(id).orElse(null));
-    }
 
     @PostConstruct
     void init()
@@ -63,31 +44,109 @@ public class ServiGeneral implements InitializingBean
         );
     }
 
-    public <T> T Empaquetar(Class<T> eTipo, Finca eFinca, DtoFallo eFallo)
+    private static Class<?> box(Class<?> c)
     {
-
+        if (!c.isPrimitive()) return c; // Creo que tiene que ser al reves.
+        if (c == boolean.class) return Boolean.class;
+        if (c == byte.class) return Byte.class;
+        if (c == char.class) return Character.class;
+        if (c == short.class) return Short.class;
+        if (c == int.class) return Integer.class;
+        if (c == long.class) return Long.class;
+        if (c == float.class) return Float.class;
+        if (c == double.class) return Double.class;
+        return c;
     }
 
+    private static boolean isCompatible(Class<?> paramType, Class<?> valueType) {
+        if (valueType == null) {
+            // permite setear null si el parámetro no es primitivo
+            return !paramType.isPrimitive();
+        }
+        if (paramType.isAssignableFrom(valueType)) return true;
+        // comprobar boxing/unboxing
+        Class<?> boxedParam = box(paramType);
+        Class<?> boxedValue = box(valueType);
+        if (boxedParam != null && boxedValue != null) {
+            return boxedParam.isAssignableFrom(boxedValue);
+        }
+        return false;
+    }
+
+    private static Method findCompatibleSetter(Class<?> dtoClass, String setterName, Class<?> getterReturnType) {
+        for (Method m : dtoClass.getMethods()) {
+            if (!m.getName().equals(setterName) || m.getParameterCount() != 1) continue;
+            Class<?> paramType = m.getParameterTypes()[0];
+            if (isCompatible(paramType, getterReturnType)) return m;
+        }
+        return null;
+    }
+
+    public <Dto, Modelo> Dto Empaquetar(Class<Dto> eTipoDto, Modelo eModelo, DtoFallo eFallo)
+    {
+        try
+        {
+            Dto novoDto = eTipoDto.getDeclaredConstructor().newInstance();
+            Class<?> claseModelo = eModelo.getClass();
+            Method[] metodosModelo = eModelo.getClass().getMethods();
+
+            for (Method m : claseModelo.getMethods())
+            {
+                if (m.getParameterCount() <= 0) continue;
+
+                String nombre = m.getName();
+
+                if (!nombre.contains("get")) continue;
+
+                String setterNombre = nombre.replace("get", "set");
+
+                Method setter = findCompatibleSetter(eTipoDto, setterName, getter.getReturnType());
+
+            }
+
+            for (Method mo : claseModelo.getMethods())
+            {
+                String nombreMetodoModelo = mo.getName();
+                if (nombreMetodoModelo.contains("get"))
+                {
+                    for (Method mm : claseModelo.getMethods())
+                    {
+                        String nombreMetodoDto = mm.getName();
+                        if (nombreMetodoDto.equals(nombreMetodoModelo.replace("get", "set")))
+                        {
+                            novoDto.invoke();
+                        }
+                    }
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            System.err.println(e.getMessage());
+        }
+
+        return  null;
+    }
+
+    @SuppressWarnings("unchecked")
     public <D> D DarmeUno(Class<D> eTipo, int eId, DtoFallo eFallo)
     {
-        Function<Integer, ?> finder = finders.get(eTipo);
-        if (finder == null) return null;
-        Object result = finder.apply(eId);
-        return eTipo.cast(result);
-    }
-
-    //@SuppressWarnings("unchecked")
-    public <D> D DarmeUno_v2(Class<D> eTipo, int eId, DtoFallo eFallo)
-    {
         JpaRepository<D, Integer> repo = (JpaRepository<D, Integer>) repos.get(eTipo);
-
         if (repo == null)
         {
             // TODO: eFallo.
             return null;
         }
 
-        return repo.findById(eId).orElse(null);
+        var novoDato = repo.findById(eId).orElse(null);
+        if (novoDato == null)
+        {
+            // TODO: eFallo.
+            return null;
+        }
+
+        return novoDato;
     }
 
 
