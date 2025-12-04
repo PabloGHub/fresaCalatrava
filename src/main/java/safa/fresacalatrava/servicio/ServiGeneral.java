@@ -92,18 +92,18 @@ public class ServiGeneral
             Class<?> claseModelo = eModelo.getClass();
             Method[] metodosModelo = eModelo.getClass().getMethods();
 
-            for (Method m : claseModelo.getMethods())
+            for (Method getter : claseModelo.getMethods())
             {
-                if (m.getParameterCount() <= 0) continue;
+                if (getter.getParameterCount() <= 0) continue;
 
-                String nombre = m.getName();
+                String nombre = getter.getName();
 
                 if (!nombre.contains("get")) continue;
 
                 String setterNombre = nombre.replace("get", "set");
 
-                Object value = m.invoke(eModelo);
-                Method setter = findCompatibleSetter(eTipoDto, setterNombre, m.getReturnType());
+                Object value = getter.invoke(eModelo);
+                Method setter = findCompatibleSetter(eTipoDto, setterNombre, getter.getReturnType());
                 if (setter != null)
                     setter.invoke(novoDto, value);
 
