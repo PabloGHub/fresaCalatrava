@@ -73,8 +73,10 @@ public class ServiGeneral
         return false;
     }
 
-    private static Method findCompatibleSetter(Class<?> dtoClass, String setterName, Class<?> getterReturnType) {
-        for (Method m : dtoClass.getMethods()) {
+    private static Method findCompatibleSetter(Class<?> dtoClass, String setterName, Class<?> getterReturnType)
+    {
+        for (Method m : dtoClass.getMethods())
+        {
             if (!m.getName().equals(setterName) || m.getParameterCount() != 1) continue;
             Class<?> paramType = m.getParameterTypes()[0];
             if (isCompatible(paramType, getterReturnType)) return m;
@@ -100,24 +102,11 @@ public class ServiGeneral
 
                 String setterNombre = nombre.replace("get", "set");
 
-                Method setter = findCompatibleSetter(eTipoDto, setterName, getter.getReturnType());
+                Object value = m.invoke(eModelo);
+                Method setter = findCompatibleSetter(eTipoDto, setterNombre, m.getReturnType());
+                if (setter != null)
+                    setter.invoke(novoDto, value);
 
-            }
-
-            for (Method mo : claseModelo.getMethods())
-            {
-                String nombreMetodoModelo = mo.getName();
-                if (nombreMetodoModelo.contains("get"))
-                {
-                    for (Method mm : claseModelo.getMethods())
-                    {
-                        String nombreMetodoDto = mm.getName();
-                        if (nombreMetodoDto.equals(nombreMetodoModelo.replace("get", "set")))
-                        {
-                            novoDto.invoke();
-                        }
-                    }
-                }
             }
 
         }
@@ -151,3 +140,40 @@ public class ServiGeneral
 
 
 }
+
+
+/*
+public <Dto, Origin> Dto Empaquetar(Class<Dto> eTipoDto, Origin eModelo, DtoFallo eFallo) {
+    if (eModelo == null) return null;
+    try {
+        Dto dto = eTipoDto.getDeclaredConstructor().newInstance();
+        Method[] origenMethods = eModelo.getClass().getMethods();
+
+        for (Method getter : origenMethods) {
+            String name = getter.getName();
+            if (getter.getParameterCount() != 0) continue;
+
+            String propSuffix = null;
+            if (name.startsWith("get") && name.length() > 3) {
+                propSuffix = name.substring(3);
+            } else if (name.startsWith("is") && name.length() > 2
+                       && (getter.getReturnType() == boolean.class || getter.getReturnType() == Boolean.class)) {
+                propSuffix = name.substring(2);
+            }
+            if (propSuffix == null) continue;
+
+            Object value = getter.invoke(eModelo);
+            String setterName = "set" + propSuffix;
+            Method setter = findCompatibleSetter(eTipoDto, setterName, getter.getReturnType());
+            if (setter != null) {
+                setter.invoke(dto, value);
+            }
+        }
+
+        return dto;
+    } catch (Exception ex) {
+        // aquí podrías rellenar eFallo con información del error
+        return null;
+    }
+}
+ */
