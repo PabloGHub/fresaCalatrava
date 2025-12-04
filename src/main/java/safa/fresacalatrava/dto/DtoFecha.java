@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoFecha
+public class DtoFecha implements IDTO
 {
     private Integer _dia;
     private Integer _mes;

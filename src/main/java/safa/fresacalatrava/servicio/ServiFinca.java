@@ -8,8 +8,6 @@ import safa.fresacalatrava.modelo.Finca;
 import safa.fresacalatrava.repositorio.*;
 
 import java.util.List;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -17,19 +15,6 @@ public class ServiFinca
 {
     private RepFinca _repFinca;
 
-    @Deprecated(since = "Pase una referencia de fallo por parámetro")
-    public DtoFinca Empaquetar(Finca eFinca)
-    {
-        DtoFinca _novoDtoFinca = new DtoFinca();
-
-        _novoDtoFinca.set_id(eFinca.getId());
-        _novoDtoFinca.set_nombre(eFinca.getNombre());
-        _novoDtoFinca.set_latitud(eFinca.getLatitud());
-        _novoDtoFinca.set_longitud(eFinca.getLongitud());
-        _novoDtoFinca.set_supercifie(eFinca.getSupercie());
-
-        return _novoDtoFinca;
-    }
     public DtoFinca Empaquetar(Finca eFinca, DtoFallo eFallo)
     {
         DtoFinca _novoDtoFinca = new DtoFinca();
@@ -86,31 +71,31 @@ public class ServiFinca
         if (_finca == null)
         {
             _finca = new Finca();
-            eFallo.set_exito(false);
-            eFallo.get_mensaje().add("[404:finca] Finca no encontrada");
+            eFallo.setExito(false);
+            eFallo.AddError("no_encontrado:finca");
             return _finca;
         }
 
-        eFallo.set_exito(true);
+        eFallo.setExito(true);
         return _finca;
     }
 
     public DtoFinca DarmeUnoDto(int eId, DtoFallo eFallo)
     {
         var _finca = DarmeUno(eId, eFallo);
-        if (!eFallo.get_exito())
+        if (!eFallo.getExito())
         {
             return new DtoFinca();
         }
-        return Empaquetar(_finca);
+        return Empaquetar(_finca, eFallo);
     }
 
-    public List<DtoFinca> DarmeTodo()
+    public List<DtoFinca> DarmeTodoDto(DtoFallo eFallo)
     {
         var _fincas = _repFinca.findAll();
 
         return _fincas.stream()
-                .map(this::Empaquetar)
+                .map(f -> Empaquetar(f, eFallo))
                 .toList();
     }
 
@@ -125,8 +110,8 @@ public class ServiFinca
 
         if (_novoFinca == null)
         {
-            eFallo.get_mensaje().add("[CrearUpdate: Error ocurrido al desampaquetar]");
-            eFallo.set_exito(false);
+            eFallo.AddError("no_desempaquetado:finca");
+            eFallo.setExito(false);
             return eFallo;
         }
 
@@ -134,8 +119,8 @@ public class ServiFinca
 
         if  (f == null)
         {
-            eFallo.get_mensaje().add("[CrearUpdate: Error ocurrido al guardar finca]");
-            eFallo.set_exito(false);
+            eFallo.AddError("no_guardado:finca");
+            eFallo.setExito(false);
             return eFallo;
         }
 
@@ -155,9 +140,9 @@ public class ServiFinca
     public DtoFallo Eliminar(int eId, DtoFallo eFallo)
     {
         var _finca = DarmeUno(eId, eFallo);
-        if (!eFallo.get_exito())
+        if (!eFallo.getExito())
         {
-            eFallo.AddError("[1001:Finca]");
+            eFallo.AddError("no_encontrado:finca");
             return eFallo;
         }
         try
@@ -166,8 +151,8 @@ public class ServiFinca
         }
         catch (Exception ex)
         {
-            eFallo.set_exito(false);
-            eFallo.AddError("[1001:Finca]");
+            eFallo.setExito(false);
+            eFallo.AddError("no_borrado:finca");
             return eFallo;
         }
 

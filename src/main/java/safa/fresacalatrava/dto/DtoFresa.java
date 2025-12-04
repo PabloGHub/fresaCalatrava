@@ -1,18 +1,19 @@
 package safa.fresacalatrava.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoInvenadero implements IDTO
+public class DtoFresa
 {
     private Integer _id;
     private String _codigo;
-    private Integer _capacidad;
+    private String _nombre;
     private Integer _tipo;
-    private DtoFinca _finca;
+    private Integer _temporada;
+    private Float _rendimiento;
 }

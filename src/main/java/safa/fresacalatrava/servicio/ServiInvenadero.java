@@ -1,4 +1,4 @@
-﻿package safa.fresacalatrava.servicio;
+package safa.fresacalatrava.servicio;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,8 @@ public class ServiInvenadero
 
         if (_novoInvernadero == null)
         {
-            eFallo.AddError("No se encontró el invernadero con ID: " + eDtoInvernadero.get_id());
+            eFallo.AddError("no_encontrado:invernadero");
+            eFallo.setExito(false);
             return null;
         }
 
@@ -68,18 +69,11 @@ public class ServiInvenadero
             }
             else
             {
-                eFallo.AddError("[404:finca]El finca no existe");
+                eFallo.AddError("no_encontrado:finca");
             }
         }
 
         return _novoInvernadero;
-    }
-
-    public Invernadero DarmeUno(int eId)
-    {
-        var _invernadero = new Invernadero();
-        _invernadero = _repInvernadero.findById(eId).orElse(null);
-        return _invernadero;
     }
 
     public Invernadero DarmeUno(int eId, DtoFallo eFallo)
@@ -88,8 +82,8 @@ public class ServiInvenadero
         _invernadero = _repInvernadero.findById(eId).orElse(null);
         if (_invernadero == null)
         {
-            eFallo.AddError("[404:Invernadero]");
-            eFallo.set_exito(false);
+            eFallo.AddError("no_encontrado:invernadero");
+            eFallo.setExito(false);
         }
         return _invernadero;
     }
@@ -97,7 +91,7 @@ public class ServiInvenadero
     public DtoInvenadero DarmeUnoDto(int eId, DtoFallo eFallo)
     {
         var _invernadero = DarmeUno(eId, eFallo);
-        if (!eFallo.get_exito())
+        if (!eFallo.getExito())
         {
             return new DtoInvenadero();
         }
@@ -125,14 +119,14 @@ public class ServiInvenadero
 
         if (_novoInvernadero == null)
         {
-            eFallo.AddError("[CrearUpdate: Error ocurrido al desampaquetar]");
-            eFallo.set_exito(false);
+            eFallo.AddError("no_desempaquetado:invernadero");
+            eFallo.setExito(false);
             return eFallo;
         }
 
         _repInvernadero.save(_novoInvernadero);
 
-        eFallo.set_exito(true);
+        eFallo.setExito(true);
         return eFallo;
     }
 
@@ -149,9 +143,9 @@ public class ServiInvenadero
     public DtoFallo Eliminar(int eId, DtoFallo eFallo)
     {
         var _invernadero = DarmeUno(eId, eFallo);
-        if (!eFallo.get_exito())
+        if (!eFallo.getExito())
         {
-            eFallo.AddError("[1001:Invernadero]");
+            eFallo.AddError("no_encontrado:invernadero");
             return eFallo;
         }
 
@@ -161,8 +155,8 @@ public class ServiInvenadero
         }
         catch (Exception ex)
         {
-            eFallo.set_exito(false);
-            eFallo.AddError("[1001:Invernadero]");
+            eFallo.setExito(false);
+            eFallo.AddError("no_eliminado:invernadero");
             return eFallo;
         }
         return eFallo;

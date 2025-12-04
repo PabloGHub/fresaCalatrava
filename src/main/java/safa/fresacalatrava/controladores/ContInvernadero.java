@@ -2,48 +2,60 @@ package safa.fresacalatrava.controladores;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import safa.fresacalatrava.dto.DtoFallo;
-import safa.fresacalatrava.dto.DtoFinca;
-import safa.fresacalatrava.dto.DtoInvenadero;
+import safa.fresacalatrava.dto.*;
 import safa.fresacalatrava.servicio.ServiInvenadero;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/invernadero")
+@RequestMapping("/invernaderos")
 @AllArgsConstructor
 public class ContInvernadero
 {
     private final ServiInvenadero _serviInvenadero;
 
-    public List<DtoInvenadero> ListarInvernadero()
+    @GetMapping("/todo")
+    public IDTO ListarInvernadero()
     {
         var fallo = new DtoFallo();
         var _todos = _serviInvenadero.DarmeTodo(fallo);
-        // TODO: Gestionar fallos.
-        return _todos;
+        if (!fallo.getExito())
+        {
+            return fallo;
+        }
+
+        return new DtoSalidaList<>(_todos);
     }
 
-    @GetMapping("/consultaUno")
-    public DtoInvenadero DarUno(@RequestParam int eId)
+    @GetMapping("/{id}")
+    public IDTO DarUno(@PathVariable int id)
     {
         var _fallo = new DtoFallo();
-        var _dato = _serviInvenadero.DarmeUnoDto(eId, _fallo);
-        // TODO: Gestionar fallos.
-        return _dato;
+        var _dato = _serviInvenadero.DarmeUnoDto(id, _fallo);
+        if (!_fallo.getExito())
+        {
+            return _fallo;
+        }
+
+        return new DtoSalida<>(_dato);
     }
 
-    @PostMapping("/creaUpdate")
-    public DtoFallo CrearUpdate(@RequestBody DtoInvenadero eInvernadero)
+    @PostMapping()
+    public IDTO CrearUpdate(@RequestBody DtoInvenadero eInvernadero)
     {
-        var _fallo = new DtoFallo();
-        var datos = _serviInvenadero.CrearUpdate(eInvernadero, _fallo);
+        DtoFallo _fallo = new DtoFallo();
+        _serviInvenadero.CrearUpdate(eInvernadero, _fallo);
         // TODO: Gestionar fallos.
-        return datos;
+        if (!_fallo.getExito())
+        {
+            return _fallo;
+        }
+
+        return new DtoSalida<>(_fallo);
     }
 
     @PostMapping("/eliminar")
-    public DtoFallo Eliminar(@RequestParam int eId)
+    public IDTO Eliminar(@RequestParam int eId)
     {
         return _serviInvenadero.Eliminar(eId);
     }
