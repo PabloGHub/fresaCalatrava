@@ -1,6 +1,7 @@
 package safa.fresacalatrava.servicio;
 
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,10 @@ import java.util.Map;
 @Service
 // @AllArgsConstructor
 @RequiredArgsConstructor
-public class ServiGeneral// <M> // TODO: Revisar genéricos.
+public class ServiGeneral<M> // TODO: Revisar genéricos.
 {
+    private /*final*/ Class<?> _tipoModelo; // Pasar por constructor.
+
     private final RepCliente repCliente;
     private final RepFinca repFinca;
     private final RepFresa repFresa;
@@ -52,6 +55,8 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
                 RecoleccionFresa.class, repRecoleccionFresa,
                 Valoracion.class, repValoracion
         );
+
+        _tipoModelo = Finca.class; // No se como pasarlo por constructor, :D.
     }
 
     public static Class<?> box(Class<?> c)
@@ -143,11 +148,11 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
         return null;
     }
 
-    public <D, M> D Empaquetar(Class<?> eTipoDestino, M eOrigen, DtoFallo eFallo)
+    public <Origen, Destino> Destino Empaquetar(Class<?> eTipoDestino, Origen eOrigen, DtoFallo eFallo)
     {
         try
         {
-            D novoDto = (D) eTipoDestino.getDeclaredConstructor().newInstance();
+            Destino novo = (Destino) eTipoDestino.getDeclaredConstructor().newInstance();
 
             if (!(eOrigen instanceof GetterSetter gsOrigen))
             {
@@ -163,11 +168,11 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
                 Object value = getter.invoke(eOrigen);
                 Method setter = findCompatibleMethod(eTipoDestino, setterNombre);
                 if (setter != null)
-                    setter.invoke(novoDto, value);
+                    setter.invoke(novo, value);
 
             }
 
-            return novoDto;
+            return novo;
         }
         catch (Exception e)
         {
@@ -177,10 +182,15 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
         return  null;
     }
 
-    @SuppressWarnings("unchecked")
-    public <M> M DarmeUno(Class<?> eTipo, int eId, DtoFallo eFallo)
+    public M DarmeUno(int eId, DtoFallo eFallo)
     {
-        JpaRepository<M, Integer> repo = (JpaRepository<M, Integer>) repos.get(eTipo);
+        return this.<M>DarmeUno(_tipoModelo, eId, eFallo);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <MM> MM DarmeUno(Class<?> eTipo, int eId, DtoFallo eFallo)
+    {
+        JpaRepository<MM, Integer> repo = (JpaRepository<MM, Integer>) repos.get(eTipo);
         if (repo == null)
         {
             // TODO: eFallo.
@@ -197,7 +207,11 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
         return novoDato;
     }
 
-    public <M, D> D DarmeUnoDto(Class<D> eTipoDto, int eId, DtoFallo eFallo)
+    public <D> D DarmeUnoDto(Class<D> eTipoDto, int eId, DtoFallo eFallo)
+    {
+        return this.<D, M>DarmeUnoDtoEspecifico(eTipoDto, eId, eFallo);
+    }
+    public <D,MM> D DarmeUnoDtoEspecifico(Class<D> eTipoDto, int eId, DtoFallo eFallo)
     {
         var eTipoModelo = modelos.get(eTipoDto);
         if (eTipoModelo == null)
@@ -206,14 +220,18 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
             return null;
         }
 
-        M modelo = DarmeUno(eTipoModelo, eId, eFallo);
+        MM modelo = DarmeUno(eTipoModelo, eId, eFallo);
 
-        return this.<D, M>Empaquetar(eTipoDto, modelo, eFallo);
+        return this.<MM, D>Empaquetar(eTipoDto, modelo, eFallo);
     }
 
-    public <M> List<M> DarmeTodo(Class<M> eTipo, DtoFallo eFallo)
+    public List<M> DarmeTodo(DtoFallo eFallo)
     {
-        var repo = (JpaRepository<M, Integer>) repos.get(eTipo);
+        return this.<M>DarmeTodo(_tipoModelo, eFallo);
+    }
+    public <MM> List<MM> DarmeTodo(Class<?> eTipo, DtoFallo eFallo)
+    {
+        var repo = (JpaRepository<MM, Integer>) repos.get(eTipo);
         if (repo == null)
         {
             // TODO: eFallo.
@@ -223,18 +241,22 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
         return repo.findAll();
     }
 
-    public <M, D> List<D> DarmeTodoDto(Class<D> eTipoDto, DtoFallo eFallo)
+    public <D> List<D> DarmeTodoDto(Class<D> eTipoDto, DtoFallo eFallo)
     {
-        var tipoModelo = modelos.get(eTipoDto);
+        return this.<D, M>DarmeTodoDtoEspecifico(eTipoDto, eFallo);
+    }
+    public <D, MM> List<D> DarmeTodoDtoEspecifico(Class<D> eTipoDto, DtoFallo eFallo)
+    {
+        MM tipoModelo = (MM) modelos.get(eTipoDto);
         if (tipoModelo == null)
         {
             // TODO: eFallo.
             return null;
         }
 
-        return DarmeTodo((Class<M>) tipoModelo, eFallo)
+        return this.<MM>DarmeTodo((Class<MM>) tipoModelo, eFallo)
                 .stream()
-                .map(m -> this.<D, M>Empaquetar(eTipoDto, m, eFallo))
+                .map(m -> this.<MM, D>Empaquetar(eTipoDto, m, eFallo))
                 .toList();
     }
 
@@ -254,7 +276,7 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
             return null;
         }
 
-        var modelo = this.<D, Object>Empaquetar(tipoModelo, eDto, eFallo);
+        var modelo = this.<D, M>Empaquetar(tipoModelo, eDto, eFallo);
         var f = repo.save(modelo);
 
         if  (f == null)
@@ -264,7 +286,7 @@ public class ServiGeneral// <M> // TODO: Revisar genéricos.
             return null;
         }
 
-        return Empaquetar(eDto.getClass(), f, eFallo);
+        return this.<M, D>Empaquetar(eDto.getClass(), f, eFallo);
     }
 }
 

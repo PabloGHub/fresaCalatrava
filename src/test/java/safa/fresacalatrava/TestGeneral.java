@@ -13,13 +13,13 @@ import safa.fresacalatrava.servicio.ServiGeneral;
 public class TestGeneral
 {
     @Autowired
-    private ServiGeneral _serviGeneral;
+    private ServiGeneral<Finca> _serviGeneral;
 
     @Test
     void testDarUno()
     {
         DtoFallo fallo = new DtoFallo();
-        Finca finca = _serviGeneral.DarmeUno(Finca.class, 1, fallo);
+        Finca finca = _serviGeneral.DarmeUno(1, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUno: " + finca + "\n");
@@ -29,8 +29,8 @@ public class TestGeneral
     void testEmpaquetar()
     {
         DtoFallo fallo = new DtoFallo();
-        Finca finca = _serviGeneral.DarmeUno(Finca.class, 1, fallo);
-        DtoFinca dtoFinca = _serviGeneral.Empaquetar(DtoFinca.class, finca, fallo);
+        Finca finca = _serviGeneral.DarmeUno( 1, fallo);
+        DtoFinca dtoFinca = _serviGeneral.<Finca, DtoFinca>Empaquetar(DtoFinca.class, finca, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUno: " + finca);
@@ -40,7 +40,7 @@ public class TestGeneral
     void testDarUnoDto()
     {
         DtoFallo fallo = new DtoFallo();
-        var finca = _serviGeneral.DarmeUnoDto(DtoFinca.class, 1, fallo);
+        var finca = _serviGeneral.DarmeUnoDtoEspecifico(DtoFinca.class, 1, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUnoDto: " + finca + "\n");
@@ -50,8 +50,8 @@ public class TestGeneral
     void testDesempaquetar()
     {
         DtoFallo fallo = new DtoFallo();
-        DtoFinca dtofinca = _serviGeneral.DarmeUnoDto(DtoFinca.class, 1, fallo);
-        Finca finca = _serviGeneral.Empaquetar(Finca.class, dtofinca, fallo);
+        DtoFinca dtofinca = _serviGeneral.DarmeUnoDtoEspecifico(DtoFinca.class, 1, fallo);
+        Finca finca = _serviGeneral.<DtoFinca, Finca>Empaquetar(Finca.class, dtofinca, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUnoDto: " + dtofinca);
