@@ -19,38 +19,38 @@ public class ServiFinca
     {
         DtoFinca _novoDtoFinca = new DtoFinca();
 
-        _novoDtoFinca.set_id(eFinca.getId());
-        _novoDtoFinca.set_nombre(eFinca.getNombre());
-        _novoDtoFinca.set_latitud(eFinca.getLatitud());
-        _novoDtoFinca.set_longitud(eFinca.getLongitud());
-        _novoDtoFinca.set_supercifie(eFinca.getSupercie());
+        _novoDtoFinca.setId(eFinca.getId());
+        _novoDtoFinca.setNombre(eFinca.getNombre());
+        _novoDtoFinca.setLatitud(eFinca.getLatitud());
+        _novoDtoFinca.setLongitud(eFinca.getLongitud());
+        _novoDtoFinca.setSupercie(eFinca.getSupercie());
 
         return _novoDtoFinca;
     }
     public Finca Desampaquetar(DtoFinca eFinca)
     {
-        Finca novoFinca = (eFinca.get_id() == null) ? new Finca() : DarmeUno(eFinca.get_id());
+        Finca novoFinca = (eFinca.getId() == null) ? new Finca() : DarmeUno(eFinca.getId());
 
         novoFinca.setId
         (
-            (eFinca.get_id() != null) ? eFinca.get_id() : novoFinca.getId()
+            (eFinca.getId() != null) ? eFinca.getId() : novoFinca.getId()
         );
 
         novoFinca.setNombre
         (
-                (eFinca.get_nombre() != null) ? eFinca.get_nombre() : novoFinca.getNombre()
+                (eFinca.getNombre() != null) ? eFinca.getNombre() : novoFinca.getNombre()
         );
         novoFinca.setLatitud
         (
-                (eFinca.get_latitud() != null) ? eFinca.get_latitud() : novoFinca.getLatitud()
+                (eFinca.getLatitud() != null) ? eFinca.getLatitud() : novoFinca.getLatitud()
         );
         novoFinca.setLongitud
         (
-                (eFinca.get_longitud() != null) ? eFinca.get_longitud() : novoFinca.getLongitud()
+                (eFinca.getLongitud() != null) ? eFinca.getLongitud() : novoFinca.getLongitud()
         );
         novoFinca.setSupercie
         (
-                (eFinca.get_supercifie() != null) ? eFinca.get_supercifie() : novoFinca.getSupercie()
+                (eFinca.getSupercie() != null) ? eFinca.getSupercie() : novoFinca.getSupercie()
         );
 
         return novoFinca;
@@ -135,7 +135,7 @@ public class ServiFinca
     public DtoFallo Eliminar(DtoFinca eFinca)
     {
         var eFallo = new DtoFallo();
-        return Eliminar(eFinca.get_id(), eFallo);
+        return Eliminar(eFinca.getId(), eFallo);
     }
     public DtoFallo Eliminar(int eId, DtoFallo eFallo)
     {

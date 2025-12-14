@@ -17,6 +17,8 @@ references fresa(id)
 
 import jakarta.persistence.*;
 import lombok.*;
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.TipoCapturado;
 
 @Getter
 @Setter
@@ -30,7 +32,7 @@ import lombok.*;
         name = "recoleccion_fresa", catalog = "fresa_calatrava",
         uniqueConstraints = { @UniqueConstraint(columnNames = {"id"}) }
 )
-public class RecoleccionFresa
+public class RecoleccionFresa implements GetterSetter //extends TipoCapturado<RecoleccionFresa>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

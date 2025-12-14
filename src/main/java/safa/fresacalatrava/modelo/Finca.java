@@ -2,6 +2,8 @@ package safa.fresacalatrava.modelo;
 
 import jakarta.persistence.*;
 import lombok.*;
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.TipoCapturado;
 
 /* -- Sql
 create or replace table finca (
@@ -25,7 +27,7 @@ create or replace table finca (
     name = "finca", catalog = "fresa_calatrava",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"id"})}
 )
-public class Finca
+public class Finca implements GetterSetter //extends TipoCapturado<Finca>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,5 +44,5 @@ public class Finca
     private Float longitud;
 
     @Column(name = "supercie", nullable = false)
-    private Integer supercie;
+    private Integer supercie; // supercifie
 }

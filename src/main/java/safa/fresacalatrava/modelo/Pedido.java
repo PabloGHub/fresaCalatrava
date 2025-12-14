@@ -15,6 +15,8 @@ package safa.fresacalatrava.modelo;
 
 import jakarta.persistence.*;
 import lombok.*;
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.TipoCapturado;
 
 @Getter
 @Setter
@@ -28,7 +30,7 @@ import lombok.*;
         name = "pedido", catalog = "fresa_calatrava",
         uniqueConstraints = { @UniqueConstraint(columnNames = {"id"}) }
 )
-public class Pedido
+public class Pedido implements GetterSetter //extends TipoCapturado<Pedido>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

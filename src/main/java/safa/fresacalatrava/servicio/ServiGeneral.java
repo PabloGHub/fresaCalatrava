@@ -4,17 +4,20 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import safa.fresacalatrava.dto.DtoFallo;
+
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.dto.*;
 import safa.fresacalatrava.modelo.*;
 import safa.fresacalatrava.repositorio.*;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 @Service
 // @AllArgsConstructor
 @RequiredArgsConstructor
-public class ServiGeneral
+public class ServiGeneral// <M> // TODO: Revisar genéricos.
 {
     private final RepCliente repCliente;
     private final RepFinca repFinca;
@@ -27,6 +30,13 @@ public class ServiGeneral
     private final RepValoracion repValoracion;
 
     private Map<Class<?>, JpaRepository<?, Integer>> repos;
+
+    private Map<Class<?>, Class<?>> modelos = Map.of(
+            DtoFinca.class, Finca.class,
+            DtoInvenadero.class, Invernadero.class,
+            DtoInvernadero_SinRela.class, Invernadero.class,
+            DtoFresa.class, Fresa.class
+    );
 
     @PostConstruct
     void init()
@@ -44,9 +54,9 @@ public class ServiGeneral
         );
     }
 
-    private static Class<?> box(Class<?> c)
+    public static Class<?> box(Class<?> c)
     {
-        if (!c.isPrimitive()) return c; // Creo que tiene que ser al reves.
+        if (!c.isPrimitive()) return c;
         if (c == boolean.class) return Boolean.class;
         if (c == byte.class) return Byte.class;
         if (c == char.class) return Character.class;
@@ -58,57 +68,106 @@ public class ServiGeneral
         return c;
     }
 
-    private static boolean isCompatible(Class<?> paramType, Class<?> valueType) {
-        if (valueType == null) {
-            // permite setear null si el parámetro no es primitivo
+    public static boolean isCompatible(Class<?> paramType, Class<?> valueType)
+    {
+        if (valueType == null)
+        {
             return !paramType.isPrimitive();
         }
+
         if (paramType.isAssignableFrom(valueType)) return true;
-        // comprobar boxing/unboxing
+
         Class<?> boxedParam = box(paramType);
         Class<?> boxedValue = box(valueType);
-        if (boxedParam != null && boxedValue != null) {
-            return boxedParam.isAssignableFrom(boxedValue);
-        }
-        return false;
+
+        return boxedParam != null
+                && boxedValue != null
+                && boxedParam.isAssignableFrom(boxedValue);
     }
 
-    private static Method findCompatibleSetter(Class<?> dtoClass, String setterName, Class<?> getterReturnType)
+
+    // TODO: Revisar.
+    public static Method findCompatibleMethod(
+            Class<?> dtoClass,
+            String methodName,
+            Class<?>[] argumentTypes)
     {
+        Method bestMatch = null;
+        int bestScore = -1;
+
         for (Method m : dtoClass.getMethods())
         {
-            if (!m.getName().equals(setterName) || m.getParameterCount() != 1) continue;
-            Class<?> paramType = m.getParameterTypes()[0];
-            if (isCompatible(paramType, getterReturnType)) return m;
+            if (!m.getName().equals(methodName)) continue;
+            if (m.getParameterCount() != argumentTypes.length) continue;
+
+            Class<?>[] methodParams = m.getParameterTypes();
+            int score = 0;
+            boolean compatible = true;
+
+            for (int i = 0; i < argumentTypes.length; i++)
+            {
+                if (!isCompatible(methodParams[i], argumentTypes[i]))
+                {
+                    compatible = false;
+                    break;
+                }
+
+                // Más puntos si es exactamente el mismo tipo
+                if (argumentTypes[i] != null && methodParams[i].equals(argumentTypes[i]))
+                {
+                    score += 2;
+                }
+                else
+                {
+                    score += 1;
+                }
+            }
+
+            if (compatible && score > bestScore)
+            {
+                bestScore = score;
+                bestMatch = m;
+            }
+        }
+
+        return bestMatch;
+    }
+
+    public static Method findCompatibleMethod(Class<?> tipo, String methodName)
+    {
+        for (Method m : tipo.getMethods())
+        {
+            if (!m.getName().equals(methodName)) continue;
+            return m;
         }
         return null;
     }
 
-    public <Dto, Modelo> Dto Empaquetar(Class<Dto> eTipoDto, Modelo eModelo, DtoFallo eFallo)
+    public <D, M> D Empaquetar(Class<?> eTipoDestino, M eOrigen, DtoFallo eFallo)
     {
         try
         {
-            Dto novoDto = eTipoDto.getDeclaredConstructor().newInstance();
-            Class<?> claseModelo = eModelo.getClass();
-            Method[] metodosModelo = eModelo.getClass().getMethods();
+            D novoDto = (D) eTipoDestino.getDeclaredConstructor().newInstance();
 
-            for (Method getter : claseModelo.getMethods())
+            if (!(eOrigen instanceof GetterSetter gsOrigen))
             {
-                if (getter.getParameterCount() <= 0) continue;
+                eFallo.setExito(false);
+                eFallo.AddError("no_implement_gs:Empaquetar");
+                return null;
+            }
 
-                String nombre = getter.getName();
+            for (Method getter : gsOrigen.getAllGetters())
+            {
+                String setterNombre = getter.getName().replace("get", "set");
 
-                if (!nombre.contains("get")) continue;
-
-                String setterNombre = nombre.replace("get", "set");
-
-                Object value = getter.invoke(eModelo);
-                Method setter = findCompatibleSetter(eTipoDto, setterNombre, getter.getReturnType());
+                Object value = getter.invoke(eOrigen);
+                Method setter = findCompatibleMethod(eTipoDestino, setterNombre);
                 if (setter != null)
                     setter.invoke(novoDto, value);
 
             }
 
+            return novoDto;
         }
         catch (Exception e)
         {
@@ -119,9 +178,9 @@ public class ServiGeneral
     }
 
     @SuppressWarnings("unchecked")
-    public <D> D DarmeUno(Class<D> eTipo, int eId, DtoFallo eFallo)
+    public <M> M DarmeUno(Class<?> eTipo, int eId, DtoFallo eFallo)
     {
-        JpaRepository<D, Integer> repo = (JpaRepository<D, Integer>) repos.get(eTipo);
+        JpaRepository<M, Integer> repo = (JpaRepository<M, Integer>) repos.get(eTipo);
         if (repo == null)
         {
             // TODO: eFallo.
@@ -138,7 +197,75 @@ public class ServiGeneral
         return novoDato;
     }
 
+    public <M, D> D DarmeUnoDto(Class<D> eTipoDto, int eId, DtoFallo eFallo)
+    {
+        var eTipoModelo = modelos.get(eTipoDto);
+        if (eTipoModelo == null)
+        {
+            // TODO: eFallo.
+            return null;
+        }
 
+        M modelo = DarmeUno(eTipoModelo, eId, eFallo);
+
+        return this.<D, M>Empaquetar(eTipoDto, modelo, eFallo);
+    }
+
+    public <M> List<M> DarmeTodo(Class<M> eTipo, DtoFallo eFallo)
+    {
+        var repo = (JpaRepository<M, Integer>) repos.get(eTipo);
+        if (repo == null)
+        {
+            // TODO: eFallo.
+            return null;
+        }
+
+        return repo.findAll();
+    }
+
+    public <M, D> List<D> DarmeTodoDto(Class<D> eTipoDto, DtoFallo eFallo)
+    {
+        var tipoModelo = modelos.get(eTipoDto);
+        if (tipoModelo == null)
+        {
+            // TODO: eFallo.
+            return null;
+        }
+
+        return DarmeTodo((Class<M>) tipoModelo, eFallo)
+                .stream()
+                .map(m -> this.<D, M>Empaquetar(eTipoDto, m, eFallo))
+                .toList();
+    }
+
+    public <D> D CrearUpdate(D eDto, DtoFallo eFallo)
+    {
+        var tipoModelo = modelos.get(eDto.getClass());
+        if (tipoModelo == null)
+        {
+            // TODO: eFallo.
+            return null;
+        }
+
+        var repo = (JpaRepository<Object, Integer>) repos.get(tipoModelo);
+        if (repo == null)
+        {
+            // TODO: eFallo.
+            return null;
+        }
+
+        var modelo = this.<D, Object>Empaquetar(tipoModelo, eDto, eFallo);
+        var f = repo.save(modelo);
+
+        if  (f == null)
+        {
+            eFallo.AddError("no_guardado:CrearUpdate");
+            eFallo.setExito(false);
+            return null;
+        }
+
+        return Empaquetar(eDto.getClass(), f, eFallo);
+    }
 }
 
 

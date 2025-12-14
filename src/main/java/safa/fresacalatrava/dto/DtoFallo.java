@@ -18,7 +18,7 @@ public class DtoFallo implements IDTO
     private Boolean exito = true;
     private List<String> mensaje;
 
-    private DtoFallo warning;
+    //private DtoFallo warning;
 
     public boolean AddError(String eMensaje)
     {
@@ -28,18 +28,20 @@ public class DtoFallo implements IDTO
         return this.mensaje.add(eMensaje);
     }
 
+    /*
     public boolean AddWarning(String eMensaje)
     {
         return this.warning.AddError(eMensaje);
     }
+     */
 
     public void Limpiar()
     {
         this.exito = true;
         if (this.mensaje != null)
             this.mensaje.clear();
-        if (this.warning != null)
-            this.warning.Limpiar();
+        //if (this.warning != null)
+        //    this.warning.Limpiar();
     }
 
     public DtoFallo(BaseDto eDTO)

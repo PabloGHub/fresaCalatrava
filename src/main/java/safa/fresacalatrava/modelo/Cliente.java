@@ -11,6 +11,8 @@ create or replace table cliente (
 
 import jakarta.persistence.*;
 import lombok.*;
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.TipoCapturado;
 
 @Getter
 @Setter
@@ -24,7 +26,7 @@ import lombok.*;
         name = "cliente", catalog = "fresa_calatrava",
         uniqueConstraints = { @UniqueConstraint(columnNames = {"id"}) }
 )
-public class Cliente
+public class Cliente implements GetterSetter //extends TipoCapturado<Cliente>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

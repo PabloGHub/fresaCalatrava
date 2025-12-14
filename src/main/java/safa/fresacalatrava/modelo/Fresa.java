@@ -13,6 +13,8 @@ create or replace table fresa(
 
 import jakarta.persistence.*;
 import lombok.*;
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.TipoCapturado;
 
 @Getter
 @Setter
@@ -26,7 +28,7 @@ import lombok.*;
         name = "fresa", catalog = "fresa_calatrava",
         uniqueConstraints = { @UniqueConstraint(columnNames = {"id"}) }
 )
-public class Fresa
+public class Fresa implements GetterSetter //extends TipoCapturado<Fresa>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

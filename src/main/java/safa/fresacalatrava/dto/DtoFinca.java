@@ -2,17 +2,18 @@ package safa.fresacalatrava.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.Operable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoFinca implements IDTO
+public class DtoFinca implements IDTO, GetterSetter, Operable
 {
-    private Integer _id;
-    private String _nombre;
-    private Float _latitud;
-    private Float _longitud;
-    private Integer _supercifie;
+    private Integer id;
+    private String nombre;
+    private Float latitud;
+    private Float longitud;
+    private Integer supercie; // supercifie
 }

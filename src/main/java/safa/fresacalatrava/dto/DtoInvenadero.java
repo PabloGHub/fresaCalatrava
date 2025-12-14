@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import safa.fresacalatrava.GetterSetter;
+import safa.fresacalatrava.Operable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoInvenadero implements IDTO
+public class DtoInvenadero implements IDTO, GetterSetter, Operable
 {
     private Integer _id;
     private String _codigo;
