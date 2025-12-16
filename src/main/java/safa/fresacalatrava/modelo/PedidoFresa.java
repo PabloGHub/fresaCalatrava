@@ -17,8 +17,7 @@ create or replace table pedido_fresa(
 
 import jakarta.persistence.*;
 import lombok.*;
-import safa.fresacalatrava.GetterSetter;
-import safa.fresacalatrava.TipoCapturado;
+import safa.fresacalatrava.IGetterSetter;
 
 @Getter
 @Setter
@@ -32,7 +31,7 @@ import safa.fresacalatrava.TipoCapturado;
         name = "pedido_fresa", catalog = "fresa_calatrava",
         uniqueConstraints = { @UniqueConstraint(columnNames = {"id"}) }
 )
-public class PedidoFresa implements GetterSetter //extends TipoCapturado<PedidoFresa>
+public class PedidoFresa implements IModelo //extends TipoCapturado<PedidoFresa>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

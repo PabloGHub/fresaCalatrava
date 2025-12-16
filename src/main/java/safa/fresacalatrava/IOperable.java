@@ -1,15 +1,22 @@
 package safa.fresacalatrava;
 
-public interface Operable
+public interface IOperable
 {
-    default boolean sum(GetterSetter eOtro)
+    default <T> T castear(Class<T> type)
     {
-        if (!(this instanceof GetterSetter gsThis) || eOtro == null)
+        if (type.isInstance(this))
+            return type.cast(this);
+        return null;
+    }
+
+    default boolean sum(IGetterSetter eOtro)
+    {
+        if (!(this instanceof IGetterSetter gsThis) || eOtro == null)
             return false;
 
         try
         {
-            for (var metodoGetter : gsThis.getAllGetters())
+            for (var metodoGetter : gsThis.darmeAllGetters())
             {
                 var valorThis = metodoGetter.invoke(gsThis);
 

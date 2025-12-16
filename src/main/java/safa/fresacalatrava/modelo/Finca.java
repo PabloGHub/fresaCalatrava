@@ -2,8 +2,7 @@ package safa.fresacalatrava.modelo;
 
 import jakarta.persistence.*;
 import lombok.*;
-import safa.fresacalatrava.GetterSetter;
-import safa.fresacalatrava.TipoCapturado;
+import safa.fresacalatrava.IGetterSetter;
 
 /* -- Sql
 create or replace table finca (
@@ -27,7 +26,7 @@ create or replace table finca (
     name = "finca", catalog = "fresa_calatrava",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"id"})}
 )
-public class Finca implements GetterSetter //extends TipoCapturado<Finca>
+public class Finca implements IModelo //extends TipoCapturado<Finca>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

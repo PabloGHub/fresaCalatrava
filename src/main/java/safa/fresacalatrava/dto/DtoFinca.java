@@ -3,13 +3,14 @@ package safa.fresacalatrava.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import safa.fresacalatrava.GetterSetter;
-import safa.fresacalatrava.Operable;
+import safa.fresacalatrava.IGetterSetter;
+import safa.fresacalatrava.IMinimoGettersSetters;
+import safa.fresacalatrava.IOperable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoFinca implements IDTO, GetterSetter, Operable
+public class DtoFinca implements IDTO, IMinimoGettersSetters
 {
     private Integer id;
     private String nombre;

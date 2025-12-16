@@ -3,13 +3,13 @@ package safa.fresacalatrava.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import safa.fresacalatrava.GetterSetter;
-import safa.fresacalatrava.Operable;
+import safa.fresacalatrava.IGetterSetter;
+import safa.fresacalatrava.IOperable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoSalidaList<D> implements IDTO, GetterSetter, Operable
+public class DtoSalidaList<D> implements IDTO
 {
     private String token;
     private Iterable<D> dtoList;

@@ -4,18 +4,18 @@ package safa.fresacalatrava.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import safa.fresacalatrava.GetterSetter;
-import safa.fresacalatrava.Operable;
+import safa.fresacalatrava.IGetterSetter;
+import safa.fresacalatrava.IOperable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoFresa implements IDTO, GetterSetter, Operable
+public class DtoFresa implements IDTO
 {
-    private Integer _id;
-    private String _codigo;
-    private String _nombre;
-    private Integer _tipo;
-    private Integer _temporada;
-    private Float _rendimiento;
+    private Integer id;
+    private String codigo;
+    private String nombre;
+    private Integer tipo;
+    private Integer temporada;
+    private Float rendimiento;
 }

@@ -3,13 +3,13 @@ package safa.fresacalatrava.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import safa.fresacalatrava.GetterSetter;
-import safa.fresacalatrava.Operable;
+import safa.fresacalatrava.IGetterSetter;
+import safa.fresacalatrava.IOperable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoFecha implements IDTO, GetterSetter, Operable
+public class DtoFecha implements IDTO
 {
     private Integer _dia;
     private Integer _mes;

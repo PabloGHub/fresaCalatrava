@@ -1,6 +1,9 @@
 package safa.fresacalatrava.dto;
 
-public interface IDTO
+import safa.fresacalatrava.IGetterSetter;
+import safa.fresacalatrava.IOperable;
+
+public interface IDTO extends IGetterSetter, IOperable
 {
 
 }

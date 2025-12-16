@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface GetterSetter
+public interface IGetterSetter
 {
     public static String getNameVariable(Method metodo)
     {
@@ -17,6 +17,8 @@ public interface GetterSetter
         }
         return null;
     }
+
+    // TODO: Impedir que salten: InvocationTargetException, IllegalAccessException.
 
     default <T> T get(String nombreVariable) throws InvocationTargetException, IllegalAccessException
     {
@@ -38,7 +40,7 @@ public interface GetterSetter
         metodo.invoke(this, valor);
     }
 
-    default List<Method> getAllGetters()
+    default List<Method> darmeAllGetters() // lo intenta serializar por alguna razon.
     {
         var metodos = new ArrayList<Method>();
         for (var metodo : this.getClass().getMethods())
@@ -53,7 +55,7 @@ public interface GetterSetter
         return metodos;
     }
 
-    default List<Method> getAllSetters()
+    default List<Method> darmeAllSetters()
     {
         var metodos = new ArrayList<Method>();
         for (var metodo : this.getClass().getMethods())

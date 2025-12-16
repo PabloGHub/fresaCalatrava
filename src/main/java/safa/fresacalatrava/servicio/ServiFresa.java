@@ -25,18 +25,18 @@ public class ServiFresa
             return _dto;
         }
 
-        _dto.set_id(eFresa.getId());
-        _dto.set_codigo(eFresa.getCodigo());
-        _dto.set_nombre(eFresa.getNombre());
-        _dto.set_tipo(eFresa.getTipo());
-        _dto.set_temporada(eFresa.getTemporada());
-        _dto.set_rendimiento(eFresa.getRendimiento());
+        _dto.setId(eFresa.getId());
+        _dto.setCodigo(eFresa.getCodigo());
+        _dto.setNombre(eFresa.getNombre());
+        _dto.setTipo(eFresa.getTipo());
+        _dto.setTemporada(eFresa.getTemporada());
+        _dto.setRendimiento(eFresa.getRendimiento());
         return _dto;
     }
 
     public Fresa Desempaquetar(DtoFresa eDtoFresa, DtoFallo eFallo)
     {
-        Fresa _novoFresa = (eDtoFresa.get_id() == null) ? new Fresa() : _repFresa.findById(eDtoFresa.get_id()).orElse(null);
+        Fresa _novoFresa = (eDtoFresa.getId() == null) ? new Fresa() : _repFresa.findById(eDtoFresa.getId()).orElse(null);
 
         if (_novoFresa == null)
         {
@@ -45,12 +45,12 @@ public class ServiFresa
             return null;
         }
 
-        _novoFresa.setId((eDtoFresa.get_id() != null) ? eDtoFresa.get_id() : _novoFresa.getId());
-        _novoFresa.setCodigo((eDtoFresa.get_codigo() != null) ? eDtoFresa.get_codigo() : _novoFresa.getCodigo());
-        _novoFresa.setNombre((eDtoFresa.get_nombre() != null) ? eDtoFresa.get_nombre() : _novoFresa.getNombre());
-        _novoFresa.setTipo((eDtoFresa.get_tipo() != null) ? eDtoFresa.get_tipo() : _novoFresa.getTipo());
-        _novoFresa.setTemporada((eDtoFresa.get_temporada() != null) ? eDtoFresa.get_temporada() : _novoFresa.getTemporada());
-        _novoFresa.setRendimiento((eDtoFresa.get_rendimiento() != null) ? eDtoFresa.get_rendimiento() : _novoFresa.getRendimiento());
+        _novoFresa.setId((eDtoFresa.getId() != null) ? eDtoFresa.getId() : _novoFresa.getId());
+        _novoFresa.setCodigo((eDtoFresa.getCodigo() != null) ? eDtoFresa.getCodigo() : _novoFresa.getCodigo());
+        _novoFresa.setNombre((eDtoFresa.getNombre() != null) ? eDtoFresa.getNombre() : _novoFresa.getNombre());
+        _novoFresa.setTipo((eDtoFresa.getTipo() != null) ? eDtoFresa.getTipo() : _novoFresa.getTipo());
+        _novoFresa.setTemporada((eDtoFresa.getTemporada() != null) ? eDtoFresa.getTemporada() : _novoFresa.getTemporada());
+        _novoFresa.setRendimiento((eDtoFresa.getRendimiento() != null) ? eDtoFresa.getRendimiento() : _novoFresa.getRendimiento());
 
         return _novoFresa;
     }
@@ -115,7 +115,7 @@ public class ServiFresa
     public DtoFallo Eliminar(DtoFresa eFresa)
     {
         var eFallo = new DtoFallo();
-        return Eliminar(eFresa.get_id(), eFallo);
+        return Eliminar(eFresa.getId(), eFallo);
     }
 
     public DtoFallo Eliminar(int eId, DtoFallo eFallo)

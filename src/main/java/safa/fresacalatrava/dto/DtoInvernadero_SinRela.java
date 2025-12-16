@@ -2,15 +2,14 @@ package safa.fresacalatrava.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import safa.fresacalatrava.GetterSetter;
-import safa.fresacalatrava.Operable;
+import safa.fresacalatrava.IGetterSetter;
+import safa.fresacalatrava.IOperable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DtoInvernadero_SinRela implements IDTO, GetterSetter, Operable
+public class DtoInvernadero_SinRela implements IDTO
 {
     private Integer _id;
     private Integer _codigo;
