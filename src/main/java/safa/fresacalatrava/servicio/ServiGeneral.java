@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.*;
-
 import safa.fresacalatrava.IGetterSetter;
 import safa.fresacalatrava.dto.*;
 import safa.fresacalatrava.modelo.*;
@@ -41,9 +39,10 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
     private final RepRecoleccionFresa repRecoleccionFresa;
     private final RepValoracion repValoracion;
 
-    private Map<Class<?>, JpaRepository<?, Integer>> repos;
+    private Map<Class<? extends IModelo>,
+                JpaRepository<?, Integer>> repos;
 
-    private Map<Class<?>, Class<?>> modelos = Map.of(
+    public static final Map<Class<?>, Class<?>> modelos = Map.of(
             DtoFinca.class, Finca.class,
             DtoInvenadero.class, Invernadero.class,
             DtoInvernadero_SinRela.class, Invernadero.class,
@@ -160,7 +159,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
         return null;
     }
 
-    public <Destino> Destino Empaquetar(Class<?> eTipoDestino, IGetterSetter eOrigen, DtoFallo eFallo)
+    public Object Empaquetar(Class<?> eTipoDestino, IGetterSetter eOrigen, DtoFallo eFallo)
     {
         if (eOrigen == null)
         {
@@ -171,7 +170,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
 
         try
         {
-            Destino novo = (Destino) eTipoDestino.getDeclaredConstructor().newInstance();
+            Class<?> novo = (Class<?>) eTipoDestino.getDeclaredConstructor().newInstance();
             if (novo == null)
             {
                 eFallo.AddError("no_instanciado:Empaquetar");
@@ -201,15 +200,10 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
         return  null;
     }
 
-    public M DarmeUno(int eId, DtoFallo eFallo)
-    {
-        return this.<M>DarmeUno(_tipoModelo, eId, eFallo);
-    }
-
     @SuppressWarnings("unchecked")
-    public <MM> MM DarmeUno(Class<?> eTipo, Integer eId, DtoFallo eFallo)
+    public IModelo DarmeUno(Class<?> eTipo, Integer eId, DtoFallo eFallo)
     {
-        JpaRepository<MM, Integer> repo = (JpaRepository<MM, Integer>) repos.get(eTipo);
+        var repo = (JpaRepository<Object, Integer>) repos.get(eTipo);
         if (repo == null)
         {
             eFallo.AddError("no_repo:" + eTipo.getSimpleName());
@@ -236,14 +230,11 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
         }
         */
 
-        return novoDato;
+        return (IModelo) novoDato;
     }
 
+
     public <D> D DarmeUnoDto(Class<D> eTipoDto, int eId, DtoFallo eFallo)
-    {
-        return this.<D, M>DarmeUnoDtoEspecifico(eTipoDto, eId, eFallo);
-    }
-    public <D,MM> D DarmeUnoDtoEspecifico(Class<D> eTipoDto, int eId, DtoFallo eFallo)
     {
         var eTipoModelo = modelos.get(eTipoDto);
         if (eTipoModelo == null)
@@ -253,7 +244,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
             return null;
         }
 
-        MM modelo = DarmeUno(eTipoModelo, eId, eFallo);
+        Object modelo = DarmeUno(eTipoModelo, eId, eFallo);
         if (modelo == null)
         {
             eFallo.setExito(false);
@@ -261,16 +252,13 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
             return null;
         }
 
-        return this.<D>Empaquetar(eTipoDto, (IGetterSetter) modelo, eFallo);
+        return (D) this.Empaquetar(eTipoDto, (IGetterSetter) modelo, eFallo);
     }
 
-    public List<M> DarmeTodo(DtoFallo eFallo)
+    @SuppressWarnings("unchecked")
+    public List<IModelo> DarmeTodo(Class<?> eTipo, DtoFallo eFallo)
     {
-        return this.<M>DarmeTodo(_tipoModelo, eFallo);
-    }
-    public <MM> List<MM> DarmeTodo(Class<?> eTipo, DtoFallo eFallo)
-    {
-        var repo = (JpaRepository<MM, Integer>) repos.get(eTipo);
+        var repo = (JpaRepository<Object, Integer>) repos.get(eTipo);
         if (repo == null)
         {
             eFallo.AddError("no_repo:" + eTipo.getSimpleName());
@@ -278,16 +266,16 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
             return null;
         }
 
-        return repo.findAll();
+        List<?> raw = repo.findAll();
+        return raw.stream()
+                .map(o -> (IModelo) o)
+                .toList();
     }
 
+    @SuppressWarnings("unchecked")
     public <D> List<D> DarmeTodoDto(Class<D> eTipoDto, DtoFallo eFallo)
     {
-        return this.<D, M>DarmeTodoDtoEspecifico(eTipoDto, eFallo);
-    }
-    public <D, MM> List<D> DarmeTodoDtoEspecifico(Class<D> eTipoDto, DtoFallo eFallo)
-    {
-        MM tipoModelo = (MM) modelos.get(eTipoDto);
+        Class<?> tipoModelo = modelos.get(eTipoDto);
         if (tipoModelo == null)
         {
             eFallo.AddError("no_modelo_encontrado:" + eTipoDto.getSimpleName());
@@ -295,35 +283,20 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
             return null;
         }
 
-        return this.<MM>DarmeTodo((Class<MM>) tipoModelo, eFallo)
+        List<IModelo> lista = this.DarmeTodo(tipoModelo, eFallo);
+        if (lista == null) return null;
+
+        return (List<D>) lista
                 .stream()
-                .map(m -> this.<D>Empaquetar(eTipoDto, (IGetterSetter) m, eFallo))
+                .map(m -> this.Empaquetar(eTipoDto, (IGetterSetter) m, eFallo))
                 .toList();
     }
 
 
-    private <D, MM> D guardar(Class<MM> eTipo, D eDto, DtoFallo eFallo)
-    {
-        /*
-        // Validación del DTO con Bean Validation antes de persistir
-        try {
-            @SuppressWarnings("unchecked")
-            var violations = validator.validate(eDto);
-            if (!violations.isEmpty()) {
-                violations.forEach(v -> {
-                    String prop = v.getPropertyPath() == null ? "unknown" : v.getPropertyPath().toString();
-                    String msg = v.getMessage();
-                    eFallo.AddError("validation:" + prop + ":" + msg);
-                });
-                eFallo.setExito(false);
-                return null;
-            }
-        } catch (Exception ex) {
-            // no bloquear si el validator falla por alguna razón
-        }
-        */
 
-        var repo = (org.springframework.data.jpa.repository.JpaRepository<Object, Integer>) repos.get(eTipo);
+    private <D> D guardar(Class<?> eTipo, D eDto, DtoFallo eFallo)
+    {
+        var repo = (JpaRepository<Object, Integer>) repos.get(eTipo);
         if (repo == null)
         {
             eFallo.AddError("no_repo:" + eTipo.getSimpleName());
@@ -331,15 +304,14 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
             return null;
         }
 
-        MM modelo = this.<MM>Empaquetar(eTipo, (IGetterSetter) eDto, eFallo);
-        MM f = null;
+        Object modelo = this.Empaquetar(eTipo, (IGetterSetter) eDto, eFallo);
+        Object f = null;
         try
         {
             f = repo.save(modelo);
         }
         catch (org.springframework.dao.DataIntegrityViolationException e)
         {
-            // Intentar extraer nombre de constraint si viene de Hibernate
             Throwable cause = e;
             boolean handled = false;
             while (cause != null)
@@ -354,12 +326,10 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
                 }
                 else if (cause instanceof java.sql.SQLIntegrityConstraintViolationException sqlEx)
                 {
-                    // como fallback intentar parsear el mensaje para obtener columna/valor
                     String msg = sqlEx.getMessage();
                     String hint = "constraint_violation";
                     if (msg != null)
                     {
-                        // ejemplo simple: buscar "column 'X'" o "for key 'uk_name'"
                         var m = java.util.regex.Pattern.compile("for key '([^']+)'").matcher(msg);
                         if (m.find()) hint = CONSTRAINT_FIELD_MAP.getOrDefault(m.group(1), m.group(1));
                     }
@@ -389,18 +359,20 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
             return null;
         }
 
-        if  (f == null)
+        if (f == null)
         {
             eFallo.AddError("no_guardado:guardar");
             eFallo.setExito(false);
             return null;
         }
 
-        return this.<D>Empaquetar(eDto.getClass(), (IGetterSetter) f, eFallo);
+        // devolver DTO resultante
+        @SuppressWarnings("unchecked")
+        D resultado = (D) this.Empaquetar(eDto.getClass(), (IGetterSetter) f, eFallo);
+        return resultado;
     }
 
-
-    public <D, MM> D Update(D eDto, DtoFallo eFallo)
+    public <D> D Update(D eDto, DtoFallo eFallo)
     {
         Class<?> tipoModelo = modelos.get(eDto.getClass());
         if (tipoModelo == null)
@@ -414,7 +386,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
         {
             try
             {
-                MM existencia = this.<MM>DarmeUno(tipoModelo, gsDto.<Integer>get("id"), eFallo);
+                Object existencia = this.DarmeUno(tipoModelo, gsDto.<Integer>get("id"), eFallo);
                 if (existencia == null)
                 {
                     eFallo.AddError("no_existente:Update");
@@ -423,7 +395,6 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
                 }
 
                 gsDto.sum((IGetterSetter) existencia);
-
                 eDto = (D) gsDto;
             }
             catch (IllegalAccessException | InvocationTargetException iae)
@@ -445,7 +416,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
         return this.guardar(tipoModelo, eDto, eFallo);
     }
 
-    public <D, MM> D Create(D eDto, DtoFallo eFallo)
+    public <D> D Create(D eDto, DtoFallo eFallo)
     {
         Class<?> tipoModelo = modelos.get(eDto.getClass());
         if (tipoModelo == null)
@@ -462,7 +433,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
                 Integer id = gsDto.<Integer>get("id");
                 if (id != null)
                 {
-                    MM existencia = this.<MM>DarmeUno(tipoModelo, id, eFallo);
+                    Object existencia = this.DarmeUno(tipoModelo, id, eFallo);
                     if (existencia != null)
                     {
                         eFallo.AddError("ya_existente:Create");
@@ -490,9 +461,10 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
         return this.guardar(tipoModelo, eDto, eFallo);
     }
 
-    public <MM> IDTO Eliminar(Class<MM> eTipo, Integer eId, DtoFallo eFallo)
+
+    public IDTO Eliminar(Class<?> eTipo, Integer eId, DtoFallo eFallo)
     {
-        var repo = (JpaRepository<MM, Integer>) repos.get(eTipo);
+        var repo = (JpaRepository<? extends IModelo, Integer>) repos.get(eTipo);
         if (repo == null)
         {
             eFallo.AddError("no_repo:" + eTipo.getSimpleName());
@@ -500,7 +472,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
             return eFallo;
         }
 
-        MM modelo = this.<MM>DarmeUno(eTipo, eId, eFallo);
+        IModelo modelo = this.DarmeUno(eTipo, eId, eFallo);
         if (modelo == null)
         {
             eFallo.AddError("no_encontrado:" + eTipo.getSimpleName());
@@ -510,7 +482,7 @@ public class ServiGeneral<M> // TODO: Revisar genéricos.
 
         try
         {
-            repo.delete(modelo);
+            repo.deleteById(eId);
         }
         catch (Exception e)
         {

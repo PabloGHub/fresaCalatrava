@@ -20,7 +20,7 @@ public class TestGeneral
     void testDarUno()
     {
         DtoFallo fallo = new DtoFallo();
-        Finca finca = _serviGeneral.DarmeUno(1, fallo);
+        var finca = _serviGeneral.DarmeUno(Finca.class, 1, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUno: " + finca);
@@ -31,8 +31,8 @@ public class TestGeneral
     void testEmpaquetar()
     {
         DtoFallo fallo = new DtoFallo();
-        Finca finca = _serviGeneral.DarmeUno( 1, fallo);
-        DtoFinca dtoFinca = _serviGeneral.<DtoFinca>Empaquetar(DtoFinca.class, finca, fallo);
+        var finca = _serviGeneral.DarmeUno( Finca.class, 1, fallo);
+        DtoFinca dtoFinca = (DtoFinca) _serviGeneral.Empaquetar(DtoFinca.class, finca, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUno: " + finca);
@@ -43,7 +43,7 @@ public class TestGeneral
     void testDarUnoDto()
     {
         DtoFallo fallo = new DtoFallo();
-        var finca = _serviGeneral.DarmeUnoDtoEspecifico(DtoFresa.class, 1, fallo);
+        var finca = _serviGeneral.DarmeUnoDto(DtoFresa.class, 1, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUnoDto: " + finca);
@@ -54,8 +54,8 @@ public class TestGeneral
     void testDesempaquetar()
     {
         DtoFallo fallo = new DtoFallo();
-        DtoFresa dtofinca = _serviGeneral.DarmeUnoDtoEspecifico(DtoFresa.class, 1, fallo);
-        Fresa finca = _serviGeneral.<Fresa>Empaquetar(Fresa.class, dtofinca, fallo);
+        DtoFresa dtofinca = _serviGeneral.DarmeUnoDto(DtoFresa.class, 1, fallo);
+        Fresa finca = (Fresa) _serviGeneral.Empaquetar(Fresa.class, dtofinca, fallo);
 
         System.out.println("====================================");
         System.out.println("DarmeUnoDto: " + dtofinca);
@@ -83,8 +83,8 @@ public class TestGeneral
     void testActualizar()
     {
         DtoFallo fallo = new DtoFallo();
-        Finca finca = _serviGeneral.DarmeUno( 4, fallo);
-        DtoFinca dtoFinca = _serviGeneral.<DtoFinca>Empaquetar(DtoFinca.class, finca, fallo);
+        var finca = _serviGeneral.DarmeUno(Finca.class, 4, fallo);
+        DtoFinca dtoFinca = (DtoFinca) _serviGeneral.<DtoFinca>Empaquetar(DtoFinca.class, (IGetterSetter) finca, fallo);
 
         dtoFinca.setSupercie(dtoFinca.getSupercie() + 100);
 

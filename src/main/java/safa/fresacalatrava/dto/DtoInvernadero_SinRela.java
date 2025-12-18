@@ -3,6 +3,7 @@ package safa.fresacalatrava.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import safa.fresacalatrava.IGSClass;
 import safa.fresacalatrava.IGetterSetter;
 import safa.fresacalatrava.IOperable;
 
@@ -11,8 +12,8 @@ import safa.fresacalatrava.IOperable;
 @NoArgsConstructor
 public class DtoInvernadero_SinRela implements IDTO
 {
-    private Integer _id;
-    private Integer _codigo;
-    private Integer _capacidad;
-    private Integer _tipo;
+    private Integer id;
+    private Integer codigo;
+    private Integer capacidad;
+    private Integer tipo;
 }
